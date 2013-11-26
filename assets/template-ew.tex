@@ -1,0 +1,208 @@
+\documentclass[letterpaper,oldfontcommands,11pt,extrafontsizes,onecolumn,oneside,openboth,final,titlepage]{memoir}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+
+\setlrmarginsandblock{2.5cm}{2.5cm}{*}
+\setulmarginsandblock{2.5cm}{2.5cm}{*}
+\checkandfixthelayout
+
+% \setlength{\topmargin}{-0.2in}
+% \setlength{\headheight}{0in}
+% \setlength{\oddsidemargin}{0in}
+% \setlength{\evensidemargin}{0in}
+% \setlength{\textwidth}{6.5in} % assumes paper size is 8.5x11
+% \setlength{\textheight}{9.3in} % assumes paper size is 8.5x11
+% \setlength{\headheight}{0in}
+% \setlength{\headsep}{0in}
+% \setlength{\parindent}{0in}
+
+
+% use microtype if available
+\IfFileExists{microtype.sty}{\usepackage{microtype}}{}
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[utf8]{inputenc}
+
+$if(euro)$
+  \usepackage{eurosym}
+$endif$
+\else % if luatex or xelatex
+  \usepackage{fontspec}
+  \ifxetex
+    \usepackage{xltxtra,xunicode}
+  \fi
+  \defaultfontfeatures{Mapping=tex-text,Scale=MatchLowercase}
+  \newcommand{\euro}{€}
+$if(mainfont)$
+    \setmainfont{$mainfont$}
+$endif$
+$if(sansfont)$
+    \setsansfont{$sansfont$}
+$endif$
+$if(monofont)$
+    \setmonofont{$monofont$}
+$endif$
+$if(mathfont)$
+    \setmathfont{$mathfont$}
+$endif$
+\fi
+
+% http://tex.stackexchange.com/questions/37868/fancyhdr-and-memoir
+\let\footruleskip\undefined
+
+\usepackage{fancyhdr}
+\renewcommand{\headrulewidth}{0pt}
+\pagestyle{fancy}
+
+%\renewcommand{\chaptermark}[1]{\markboth{\MakeUppercase{#1}}{}}
+\renewcommand{\chaptermark}[1]{\markboth{\thechapter.\ #1}{}}
+
+\pagenumbering{arabic}
+\lfoot{\itshape $title$}
+\lhead{}
+\chead{}
+\rhead{\itshape{\nouppercase{\leftmark}}}
+\lfoot{$version$}
+\cfoot{}
+\rfoot{\thepage}
+
+% via http://tex.stackexchange.com/questions/31200/scrartcl-remove-page-number-on-title-page
+% via http://tex.stackexchange.com/questions/57076/fancyhdr-on-the-first-page-only
+% \fancypagestyle{\titlepagestyle}{
+%   \fancyhf{}    % Clear header/footer
+% }
+
+\chapterstyle{komalike}
+
+$if(geometry)$
+\usepackage[$for(geometry)$$geometry$$sep$,$endfor$]{geometry}
+$endif$
+$if(natbib)$
+\usepackage{natbib}
+\bibliographystyle{plainnat}
+$endif$
+$if(biblatex)$
+\usepackage{biblatex}
+$if(biblio-files)$
+\bibliography{$biblio-files$}
+$endif$
+$endif$
+$if(listings)$
+\usepackage{listings}
+$endif$
+$if(lhs)$
+\lstnewenvironment{code}{\lstset{language=Haskell,basicstyle=\small\ttfamily}}{}
+$endif$
+$if(highlighting-macros)$
+$highlighting-macros$
+$endif$
+$if(verbatim-in-note)$
+\usepackage{fancyvrb}
+$endif$
+$if(tables)$
+\usepackage{longtable}
+$endif$
+$if(graphics)$
+\usepackage{graphicx}
+% We will generate all images so they have a width \maxwidth. This means
+% that they will get their normal width if they fit onto the page, but
+% are scaled down if they would overflow the margins.
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth
+\else\Gin@nat@width\fi}
+\makeatother
+\let\Oldincludegraphics\includegraphics
+\renewcommand{\includegraphics}[1]{\Oldincludegraphics[width=\maxwidth]{#1}}
+$endif$
+\ifxetex
+  \usepackage[setpagesize=false, % page size defined by xetex
+              unicode=false, % unicode breaks when used with xetex
+              xetex]{hyperref}
+\else
+  \usepackage[unicode=true]{hyperref}
+\fi
+\hypersetup{breaklinks=true,
+            bookmarks=true,
+            pdfauthor={$author-meta$},
+            pdftitle={$title-meta$},
+            colorlinks=true,
+            urlcolor=$if(urlcolor)$$urlcolor$$else$blue$endif$,
+            linkcolor=$if(linkcolor)$$linkcolor$$else$magenta$endif$,
+            pdfborder={0 0 0}}
+$if(links-as-notes)$
+% Make links footnotes instead of hotlinks:
+\renewcommand{\href}[2]{#2\footnote{\url{#1}}}
+$endif$
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+
+% prevent orphans
+\clubpenalty=300000
+
+\setcounter{secnumdepth}{3}
+$for(header-includes)$
+$header-includes$
+$endfor$
+
+% memoir specific variable that lowers the title by 200pt
+\setlength{\droptitle}{200pt}
+
+\pretitle{\begin{flushleft}}
+\title{\bfseries \HUGE $title$ \\ \vskip .5em \LARGE $subtitle$}
+\posttitle{\par\vskip1em{\normalfont\normalsize\scshape \par\vfill}\end{flushleft}\vskip 0.5em}
+
+\author{$for(author)$$author$$sep$ \and $endfor$}
+% TODO: currently looks bad if not blank; make it look good and replace with todays date
+\date{$date$}
+
+\begin{document}
+
+\begin{titlingpage}
+\maketitle
+
+\vfill
+\Oldincludegraphics[width=3in]{./ew-logo-large.png}
+\end{titlingpage}
+
+\pagebreak
+
+\emph{Prepared by} \textbf{Evolving Web Inc.} \\
+300, rue du Saint-Sacrement --- Suite 114 \\
+Montreal, QC H2Y 1X4 \\
+phone: (514) 844-4930 \\
+fax: (514) 807-7499 \\
+\href{http://evolvingweb.ca}{http://evolvingweb.ca}
+
+\vfill
+\textbf{CONFIDENTIAL}:~The contents of this document are confidential
+and are intended exclusively for the prospective customer of Evolving
+Web designated above and its employees. Distribution of or sharing of
+this information with persons or entities for which it is not intended
+is prohibited, in any form, without the express written consent of
+Evolving Web.
+\pagebreak
+
+$for(include-before)$
+$include-before$
+
+$endfor$
+$if(toc)$
+{
+\hypersetup{linkcolor=black}
+\setcounter{tocdepth}{$toc-depth$}
+\tableofcontents
+}
+$endif$
+$body$
+
+$for(include-after)$
+$include-after$
+
+$endfor$
+\end{document}
