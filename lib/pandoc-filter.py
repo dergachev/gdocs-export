@@ -27,6 +27,9 @@ def isTitle(key, value):
 def isPageBreak(key, value):
   return isH1WithClass(key, value, u'ew-pandoc-pagebreak')
 
+def isHr(key, value):
+  return key == 'HorizontalRule'
+
 # key is a pandoc type, generally "Header", "String" "Para",...
 # value is either a string (if key is String) or a list otherwise.
 # If a list, value's structure depends on type
@@ -41,30 +44,23 @@ def isPageBreak(key, value):
 #      ], 
 #    "t": "Header"
 #  }
-def extract_meta(key, value, format, meta):
-  # if isH1(key, value):
-  #  print value[1][1][0]
-
-
+def extract_metadata(key, value, format, meta):
   # FIXME: isTitle fails!!!!
   if isTitle(key,value):
     meta["title"] = { "c": value[2], "t": "MetaInlines" }
     return []
   if isSubTitle(key,value):
-  #   print "SUBTT"
     meta["subtitle"] = { "c": value[2], "t": "MetaInlines" }
     return []
 
-def fix_pagebreaks(key, value, format, meta):
-  # print key
-  if isPageBreak(key,value):
-    # print "Found HR"
-    # print value
-    return RawBlock('latex', '\\pagebreak')
-    # meta["title"] = { "c": value[2], "t": "MetaInlines" }
-    # return []
+def fix_hr(key, value, format, meta):
+  if key == "HorizontalRule":
+    return RawBlock('latex', '\\hrulefill')
 
-# override pandocfilters.toJSONFIlter to support altering metadata
+def fix_pagebreaks(key, value, format, meta):
+  if isPageBreak(key,value):
+    return RawBlock('latex', '\\pagebreak')
+
 def toJSONFilter():
 
   doc = json.loads(sys.stdin.read())
@@ -73,15 +69,16 @@ def toJSONFilter():
   else:
     format = ""
 
-  # first, process metadata
+  # first, process metadata (title and subtitle)
   result_meta = doc[0]['unMeta']
-  doc = walk(doc, extract_meta, format, result_meta)
+  doc = walk(doc, extract_metadata, format, result_meta)
   doc[0]['unMeta'] = result_meta
 
   # then, fix page breaks
   doc = walk(doc, fix_pagebreaks, format, result_meta)
-  
-  # then, process newlines
+
+  # then, customize horizontal rules (otherwise they're hardcoded in Writers/LaTeX.hs)
+  doc = walk(doc, fix_hr, format, result_meta)
 
   json.dump(doc, sys.stdout)
 
