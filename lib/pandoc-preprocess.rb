@@ -3,14 +3,57 @@
 require 'rubygems'
 require 'nokogiri'
 
-@doc = Nokogiri::HTML(ARGF.read)
+require 'open-uri'
 
+@source = ARGF.read
+
+@doc = Nokogiri::HTML(@source)
+
+# download all referenced images (they have absolute URLs)
+@doc.css("img").each do |x|
+  uri = x['src']
+  name = File.basename(uri)
+  name_with_ext = "#{name}.jpg"
+  path = "build/#{name_with_ext}"
+  unless File.exists?(path)
+    File.open(path,'wb'){ |f| f.write(open(uri).read) }
+  end
+  x['src'] = "#{name_with_ext}"
+end
+
+
+# support Google Docs title format, this prepares it for extract_metadata
 @doc.css("p.title").each do |x|
   x.replace("<h1 class='ew-pandoc-title'>#{x.content}</h1>")
 end
 
+# support Google Docs subtitle format; this prepares it for extract_metada
 @doc.css("p.subtitle").each do |x|
   x.replace("<h1 class='ew-pandoc-subtitle'>#{x.content}</h1>")
+end
+
+# fix bold tags; in the source:
+#  .c14{font-weight:bold}
+#  <span class="c14">Bold Text </span>
+bold_classes = @source.scan(/\.(c\d+)\{font-weight:bold\}/)
+bold_classes.each do |cssClass|
+  @doc.css("span.#{cssClass[0]}").each do |x|
+    x.replace("<strong>#{x.content}</strong>")
+  end
+end
+
+# fix italic tags; in the source:
+#  .c16{font-style:italic}
+#  <span class="c16">Italic Text</span>
+@source.scan(/\.(c\d+)\{font-style:italic\}/).each do |cssClass|
+  @doc.css("span.#{cssClass[0]}").each do |x|
+    x.replace("<em>#{x.content}</em>")
+  end
+end
+
+# sometimes images are placed inside a heading tag, which crashes latex
+@doc.css('h1,h2,h3,h4,h5,h6').>('img').each do |x|
+  x.parent.replace(x)
 end
 
 
@@ -26,7 +69,15 @@ end
   x.replace("<h1 class='ew-pandoc-pagebreak' />")
 end
 
-puts @doc.to_html
+html = @doc.to_html
+puts html
+
+# trying to fix encoding bug introduced by ruby1.9.3 or nokogori 1.6
+# &nbsp; are converted to strange characters, instead of staying as they are
+# puts @doc.to_html.encode('utf-8')
+# puts @doc.to_html.encode('iso-8859-1').encode('utf-8')
+# nbsp = Nokogiri::HTML("&nbsp;").text
+# html.gsub(nbsp, "&nbsp;")
 
 
 # TODO: ensure neither title or subtitle occur more than once, or are empty
