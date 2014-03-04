@@ -1,2 +1,8 @@
 .vagrant
-.swp
+*.swp
+build/*
+stuy/
+.bundle
+vendor/bundle/*
+input/*
+
