@@ -20,12 +20,12 @@ api_download_alternative:
 	bundle exec google-api execute drive.files.get --api drive  -- fileId="$(doc)" \
 	 | sed 's/text\/html/textHtml/' \
 	 | jq .exportLinks.textHtml -c \
-	 | xargs bundle exec google-api execute -u  
+	 | xargs bundle exec google-api execute -u
 	  > $(input_file)
 
 convert:
 	bash bin/run.sh $(input_file)
 
-#TODO: this has not been tested recently
 diff:
-	bash bin/diff.sh build/$(before)/$(before).tex build/$(after)/$(after).tex
+	latexdiff --flatten build/$(before)/$(before).tex build/$(after)/$(after).tex > build/$(after)/diff.tex
+	( cd build/$(after); rubber --pdf diff)
