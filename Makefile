@@ -36,7 +36,7 @@ convert:
 	# use pandoc to create metadata.tex, main.tex (these are included by ew-template.tex)
 	pandoc $(OUTPUT)/post.json --no-wrap -t latex --template assets/template-metadata.tex > $(OUTPUT)/metadata.tex
 	pandoc $(OUTPUT)/post.json --chapters --no-wrap -t latex > $(OUTPUT)/main.tex
-	cp assets/template-ew.tex $(OUTPUT)/$(name).tex
+	cp assets/template.tex $(OUTPUT)/$(name).tex
 	
 	# must use -o with docx output format, since its binary
 	pandoc $(OUTPUT)/post.json -s -t docx -o $(OUTPUT)/$(name).docx
