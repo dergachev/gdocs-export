@@ -4,24 +4,20 @@ doc_id = $(shell echo $(doc) | sed -e 's@^https.*document/d/@@' -e 's@/edit.*@@'
 name = default
 input_file = input/$(name).html
 OUTPUT=build/$(name)
+auth_file = google-api-authorization.yaml
 
-api_download:
+install_auth_file:
+	cp /var/gdocs-export/$(auth_file) ~/.google-api.yaml
+
+api_auth:
+	bundle exec ruby bin/authorize.rb \
+		$(client_id) $(client_secret) \
+		https://www.googleapis.com/auth/drive.readonly \
+		> $(auth_file)
+
+api_download: install_auth_file
 	bundle exec google-api execute \
 	  -u "https://docs.google.com/feeds/download/documents/export/Export?id=$(doc_id)&exportFormat=html" \
-	  > $(input_file)
-
-api_authorize:
-	bundle exec google-api oauth-2-login -v \
-	  --scope https://www.googleapis.com/auth/drive.readonly \
-	  --client-id $(client_id) \
-	  --client-secret $(client_secret)
-
-# needs ruby 1.9+ to run properly, due to faraday
-api_download_alternative:
-	bundle exec google-api execute drive.files.get --api drive  -- fileId="$(doc)" \
-	 | sed 's/text\/html/textHtml/' \
-	 | jq .exportLinks.textHtml -c \
-	 | xargs bundle exec google-api execute -u
 	  > $(input_file)
 
 convert:
@@ -49,3 +45,22 @@ convert:
 diff:
 	latexdiff --flatten build/$(before)/$(before).tex $(OUTPUT)/$(name).tex > $(OUTPUT)/diff.tex
 	(cd $(OUTPUT); rubber --pdf diff)
+
+docker_build:
+	@echo "Warning: building can take a while. Also currently requires 'apt-get install -y squid-deb-proxy'"
+	docker build -t dergachev/gdocs-export .
+
+docker_debug:
+	docker run -t -i -v `pwd`:/var/gdocs-export -p 12736:12736 dergachev/gdocs-export /bin/bash
+
+docker_api_auth:
+	docker run -t -i -v `pwd`:/var/gdocs-export -p 12736:12736 dergachev/gdocs-export make api_auth client_id=$(client_id) client_secret=$(client_secret)
+
+docker_api_download:
+	docker run -t -i -v `pwd`:/var/gdocs-export dergachev/gdocs-export make api_download doc_id=$(doc_id) input_file=$(input_file)
+
+docker_convert:
+	docker run -t -i -v `pwd`:/var/gdocs-export dergachev/gdocs-export make convert OUTPUT=$(OUTPUT) name=$(name) input_file=$(input_file)
+
+docker_diff:
+	docker run -t -i -v `pwd`:/var/gdocs-export dergachev/gdocs-export make diff OUTPUT=$(OUTPUT) name=$(name) input_file=$(input_file) before=$(before)
