@@ -24,10 +24,6 @@ api_download_alternative:
 	 | xargs bundle exec google-api execute -u
 	  > $(input_file)
 
-diff:
-	latexdiff --flatten build/$(before)/$(before).tex $(OUTPUT)/$(name).tex > $(OUTPUT)/diff.tex
-	(cd $(OUTPUT); rubber --pdf diff)
-
 convert:
 	mkdir -p $(OUTPUT)
 	cp assets/* $(OUTPUT)
@@ -49,3 +45,7 @@ convert:
 	# convert latex to PDF
 	echo "Created $(OUTPUT)/$(name).tex, compiling into $(name).pdf"
 	( cd $(OUTPUT); rubber --pdf $(name))
+
+diff:
+	latexdiff --flatten build/$(before)/$(before).tex $(OUTPUT)/$(name).tex > $(OUTPUT)/diff.tex
+	(cd $(OUTPUT); rubber --pdf diff)
