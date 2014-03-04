@@ -5,17 +5,23 @@ it to LaTeX.
 
 ## Usage
 
-Visit h
+See the `Vagrantfile` for installation steps.
+See the `Makefile` for usage.
+
 ```bash
 vagrant up
 vagrant ssh
 cd /vagrant/
-scripts
+
+# populates ~/.google-api.yaml with access_token, refresh_token, etc..
+make api_authorize client_id=$CLIENT_ID client_secret=$CLIENT_SECRET
+
+# downloads file into input/document-march22.html
+make api_download doc=$GOOGLE_DOC_URL name=document-march22
+
+# creates build/document-march22/document-march22.pdf
+make convert name=document-march22
+
+# creates build/document-march22/diff.pdf
+make diff name=document-march22 before=document-march21
 ```
-
-## Installation
-
-A Vagrantfile is provided that installs all the dependencies. To use it:
-
-* install Virtualbox and Vagrant
-* `vagrant up`
