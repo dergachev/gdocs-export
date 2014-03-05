@@ -14,7 +14,8 @@ vagrant up
 vagrant ssh
 cd /vagrant/
 
-make docker_build
+# runs "docker build ..."
+make build_docker
 
 # see below for how to get your Google API client_id and client_secret (these are fake)
 export CLIENT_ID=409429960585-o2i6nc17gf5sdhpa6o2g5gkkclmq229g.apps.googleusercontent.com
