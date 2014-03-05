@@ -87,7 +87,8 @@ module Google
         # AUTHFILE_YAML_PATH = 'google-api-authorization.yaml'
         # config_file = File.expand_path(AUTHFILE_YAML_PATH)
         # open(config_file, 'w') { |file| file.write(YAML.dump(config)) }
-        STDERR.puts "Success! Received the following credentials:"
+        STDERR.puts "Success! Received the following credentials (also printing them to STDOUT):"
+        STDERR.puts YAML.dump(config)
         STDOUT.puts YAML.dump(config)
 
       end

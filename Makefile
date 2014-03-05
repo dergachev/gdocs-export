@@ -1,3 +1,7 @@
+#===============================================================================
+# DEFAULT MAKE VARIABLES
+#===============================================================================
+
 # defaults to "Test doc for gd-pandoc"
 doc = https://docs.google.com/a/evolvingweb.ca/document/d/1dwYaiiy4P0KA7PvNwAP2fsPAf6qMMNzwaq8W66mwyds/edit#heading=h.4lk08p1hx3w
 doc_id = $(shell echo $(doc) | sed -e 's@^https.*document/d/@@' -e 's@/edit.*@@')
@@ -5,6 +9,11 @@ name = default
 input_file = input/$(name).html
 OUTPUT=build/$(name)
 auth_file = google-api-authorization.yaml
+docker_run_cmd = docker run -t -i -v `pwd`:/var/gdocs-export -p 12736:12736 dergachev/gdocs-export
+
+#===============================================================================
+# GOOGLE_DRIVE_API TARGETS
+#===============================================================================
 
 install_auth_file:
 	cp /var/gdocs-export/$(auth_file) ~/.google-api.yaml
@@ -19,6 +28,10 @@ api_download: install_auth_file
 	bundle exec google-api execute \
 	  -u "https://docs.google.com/feeds/download/documents/export/Export?id=$(doc_id)&exportFormat=html" \
 	  > $(input_file)
+
+#===============================================================================
+# PANDOC TARGETS
+#===============================================================================
 
 convert:
 	mkdir -p $(OUTPUT)
@@ -46,21 +59,27 @@ diff:
 	latexdiff --flatten build/$(before)/$(before).tex $(OUTPUT)/$(name).tex > $(OUTPUT)/diff.tex
 	(cd $(OUTPUT); rubber --pdf diff)
 
-docker_build:
-	@echo "Warning: building can take a while. Also currently requires 'apt-get install -y squid-deb-proxy'"
+
+#===============================================================================
+# DOCKER TARGETS
+#===============================================================================
+
+build_docker:
+	@echo "Warning: building can take a while (~15m)."
+	dpkg -l squid-deb-proxy || sudo apt-get install -y squid-deb-proxy
 	docker build -t dergachev/gdocs-export .
 
 docker_debug:
-	docker run -t -i -v `pwd`:/var/gdocs-export -p 12736:12736 dergachev/gdocs-export /bin/bash
+	$(docker_run_cmd) /bin/bash
 
 docker_api_auth:
-	docker run -t -i -v `pwd`:/var/gdocs-export -p 12736:12736 dergachev/gdocs-export make api_auth client_id=$(client_id) client_secret=$(client_secret)
+	$(docker_run_cmd) make api_auth client_id=$(client_id) client_secret=$(client_secret)
 
 docker_api_download:
-	docker run -t -i -v `pwd`:/var/gdocs-export dergachev/gdocs-export make api_download doc_id=$(doc_id) input_file=$(input_file)
+	$(docker_run_cmd) make api_download doc_id=$(doc_id) input_file=$(input_file)
 
 docker_convert:
-	docker run -t -i -v `pwd`:/var/gdocs-export dergachev/gdocs-export make convert OUTPUT=$(OUTPUT) name=$(name) input_file=$(input_file)
+	$(docker_run_cmd) make convert OUTPUT=$(OUTPUT) name=$(name) input_file=$(input_file)
 
 docker_diff:
-	docker run -t -i -v `pwd`:/var/gdocs-export dergachev/gdocs-export make diff OUTPUT=$(OUTPUT) name=$(name) input_file=$(input_file) before=$(before)
+	docker run -t -i -v `pwd`:/var/gdocs-export -p 12736:12736 dergachev/gdocs-export make diff OUTPUT=$(OUTPUT) name=$(name) input_file=$(input_file) before=$(before)
