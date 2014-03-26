@@ -14,7 +14,7 @@ require 'open-uri'
   uri = x['src']
   name = File.basename(uri)
   name_with_ext = "#{name}.jpg"
-  path = "build/#{name_with_ext}"
+  path = "./#{name_with_ext}"
   unless File.exists?(path)
     File.open(path,'wb'){ |f| f.write(open(uri).read) }
   end

@@ -38,7 +38,7 @@ convert:
 	cp assets/* $(OUTPUT)
 	cp $(input_file) $(OUTPUT)/in.html
 	
-	bundle exec ruby lib/pandoc-preprocess.rb $(OUTPUT)/in.html > $(OUTPUT)/preprocessed.html
+	bundle exec ruby -C$(OUTPUT) ../../lib/pandoc-preprocess.rb in.html > $(OUTPUT)/preprocessed.html
 	pandoc $(OUTPUT)/preprocessed.html -t json > $(OUTPUT)/pre.json
 	cat $(OUTPUT)/pre.json | ./lib/pandoc-filter.py > $(OUTPUT)/post.json
 	
