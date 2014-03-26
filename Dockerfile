@@ -3,7 +3,7 @@ MAINTAINER Alex Dergachev <alex@evolvingweb.ca>
 
 # check if the docker host is running squid-deb-proxy, and use it
 RUN route -n | awk '/^0.0.0.0/ {print $2}' > /tmp/host_ip.txt
-RUN echo "HEAD /" | nc `cat /tmp/host_ip.txt` 8000 | grep squid-deb-proxy && echo "Acquire::http::Proxy \"http://$(cat /tmp/host_ip.txt):8000\";" > /etc/apt/apt.conf.d/30proxy
+RUN echo "HEAD /" | nc `cat /tmp/host_ip.txt` 8000 | grep squid-deb-proxy && (echo "Acquire::http::Proxy \"http://$(cat /tmp/host_ip.txt):8000\";" > /etc/apt/apt.conf.d/30proxy) || echo "No squid-deb-proxy detected"
 
 # install misc tools
 RUN apt-get update -y && apt-get install -y curl wget git fontconfig make vim
