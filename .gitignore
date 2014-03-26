@@ -2,7 +2,5 @@
 *.swp
 build/*
 stuy/
-.bundle
-vendor/bundle/*
 input/*
 

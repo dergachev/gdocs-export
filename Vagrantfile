@@ -3,7 +3,8 @@
 
 Vagrant.configure("2") do |config|
   config.vm.box = "raring64"
-  config.vm.box_url = "http://files.vagrantup.com/precise64.box"
+  config.vm.box_url = "http://cloud-images.ubuntu.com/vagrant/raring/current/raring-server-cloudimg-amd64-vagrant-disk1.box"
+  config.ssh.forward_agent = true
 
   # building pandoc needs a lot of RAM (at least 512, the more the better)
   config.vm.provider :virtualbox do |vb|
@@ -20,13 +21,13 @@ Vagrant.configure("2") do |config|
 
   config.vm.provision "docker"
 
-  # config.vm.provision :shell, :inline => <<-EOT
-  #   # our docker containers expect the host to have squid-deb-proxy
-  #   apt-get install squid-deb-proxy -y
-  #   apt-get update
+  config.vm.provision :shell, :inline => <<-EOT
+    # our docker containers expect the host to have squid-deb-proxy
+    apt-get install squid-deb-proxy -y
+    apt-get update
 
-  #   # standard utilities
-  #   apt-get install -y build-essential vim curl git
-  # EOT
+    # standard utilities
+    apt-get install -y build-essential vim curl git
+  EOT
 end
 
