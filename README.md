@@ -1,11 +1,20 @@
-# gdocs-export
+gdocs-export
+============
 
 Script to programatically download a text document from Google Docs and convert
-it to LaTeX.
+it to LaTeX, and compile it into a PDF.
 
-## Usage
+For example, this [google
+doc](https://docs.google.com/a/evolvingweb.ca/document/d/1dwYaiiy4P0KA7PvNwAP2fsPAf6qMMNzwaq8W66mwyds/edit)
+is converted into [this
+pdf](https://raw.githubusercontent.com/dergachev/gdocs-export/master/build/example/example.pdf).
 
-See below for how to get google drive API client_id and client_secret.
+Under the hood, it uses [pandoc](http://johnmacfarlane.net/pandoc/) to convert from HTML to LaTeX and PDF.
+
+Installation
+------------
+
+See below for how to get google drive API *client_id* and *client_secret*.
 See the `Vagrantfile` for installation steps.
 See the `Makefile` for usage.
 
@@ -31,6 +40,9 @@ apt-get install -y squid-deb-proxy
 # takes 10-20 minutes
 docker build -t dergachev/gdocs-export .
 ```
+
+Configuration
+-------------
 
 Before being able to interact with Google APIs, you'll need to register a new
 project in the [Google Developers
@@ -76,10 +88,13 @@ access_token: ya29.1.klsfj3kj3kj23k4jkkjsfkfjksdjfksdjfkjjiuiquiuwiue-324k234kj3
 refresh_token: 1/EJKERKJERKJ3jkkj34998889i9jkAAAAAAjjjjjjjzQ
 ```
 
-The client_id and client_secret properties are your applications API
-credentials, while the access_token and refresh_token are proof that your
+The *client_id* and *client_secret * properties are your application's API
+credentials, while the *access_token* and *refresh_token* are proof that your
 application has been authorized access to a given account's data. Be sure to
 keep this file private!
+
+Usage
+-----
 
 Now that we've got all the access tokens we need, we can use it to download an
 arbitrary document. For example, try downloading the [gdocs-export example
@@ -88,20 +103,20 @@ which I've shared publicly.
 
 ```bash
 export GOOGLE_DOC_URL=https://docs.google.com/a/evolvingweb.ca/document/d/1dwYaiiy4P0KA7PvNwAP2fsPAf6qMMNzwaq8W66mwyds/edit
-make docker_api_download name=example-1 doc=$GOOGLE_DOC_URL
+make docker_api_download name=example doc=$GOOGLE_DOC_URL
 ```
 
-The above just created `./input/example-1.html`. Let's convert it to PDF:
+The above just created `./input/example.html`. Let's convert it to PDF:
 
 ```bash
 make docker_convert name=example
 ```
 
-The above command creates the following files inside of `./build/example-1/`:
+The above command creates the following files inside of `./build/example/`:
 
-    example-1.pdf
-    example-1.docx
-    example-1.rtf
+    example.pdf
+    example.docx
+    example.rtf
 
 By default it'll use the header.tex and logo image in `./assets/sample/`.
 To use the customized files under `./assets/ew/` instead, do the following:
@@ -127,9 +142,12 @@ make docker_convert name=my-doc-v2
 make docker_diff before=my-doc-v1 name=my-doc-v2
 ```
 
-## Getting google drive API token
+Registering with Google Developers Console
+------------------------------------------
 
-The Google API console seems to be always changing. The following steps were sufficient as of March 4, 2014.
+The following documents 
+
+The Google Developers Console API console seems to be always changing. The following steps were sufficient as of March 4, 2014.
 
 * Visit https://console.developers.google.com/project, create new project (pick a descriptive name and ID)
     ![](https://dl.dropbox.com/u/29440342/screenshots/QOXZHZMW-2014.03.04-17-49-16.png)
