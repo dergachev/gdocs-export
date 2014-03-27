@@ -145,9 +145,11 @@ make docker_diff before=my-doc-v1 name=my-doc-v2
 Registering with Google Developers Console
 ------------------------------------------
 
-The following documents 
+The following shows how to get a register your app (or rather, your instance of
+gdocs-export) and get a Google API *client_id* and *client_secret* tokens.
 
-The Google Developers Console API console seems to be always changing. The following steps were sufficient as of March 4, 2014.
+The Google Developers Console API console seems to be always changing. The
+following steps were sufficient as of March 4, 2014.
 
 * Visit https://console.developers.google.com/project, create new project (pick a descriptive name and ID)
     ![](https://dl.dropbox.com/u/29440342/screenshots/QOXZHZMW-2014.03.04-17-49-16.png)
