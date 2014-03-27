@@ -4,12 +4,16 @@
 
 # defaults to "Test doc for gd-pandoc"
 doc = https://docs.google.com/a/evolvingweb.ca/document/d/1dwYaiiy4P0KA7PvNwAP2fsPAf6qMMNzwaq8W66mwyds/edit#heading=h.4lk08p1hx3w
+
 doc_id = $(shell echo $(doc) | sed -e 's@^https.*document/d/@@' -e 's@/edit.*@@')
 name = default
 input_file = input/$(name).html
 OUTPUT=build/$(name)
 auth_file = google-api-authorization.yaml
 docker_run_cmd = docker run -t -i -v `pwd`:/var/gdocs-export -p 12736:12736 dergachev/gdocs-export
+
+# directory containing customized header.tex, etc...
+theme = sample
 
 #===============================================================================
 # GOOGLE_DRIVE_API TARGETS
@@ -35,7 +39,8 @@ api_download: install_auth_file
 
 convert:
 	mkdir -p $(OUTPUT)
-	cp assets/* $(OUTPUT)
+	cp assets/default/* $(OUTPUT)
+	test -z "$(theme)" || cp assets/$(theme)/* $(OUTPUT)
 	cp $(input_file) $(OUTPUT)/in.html
 	
 	bundle exec ruby -C$(OUTPUT) ../../lib/pandoc-preprocess.rb in.html > $(OUTPUT)/preprocessed.html
@@ -43,9 +48,8 @@ convert:
 	cat $(OUTPUT)/pre.json | ./lib/pandoc-filter.py > $(OUTPUT)/post.json
 	
 	# use pandoc to create metadata.tex, main.tex (these are included by ew-template.tex)
-	pandoc $(OUTPUT)/post.json --no-wrap -t latex --template assets/template-metadata.tex > $(OUTPUT)/metadata.tex
+	pandoc $(OUTPUT)/post.json --no-wrap -t latex --template $(OUTPUT)/template-metadata.tex > $(OUTPUT)/metadata.tex
 	pandoc $(OUTPUT)/post.json --chapters --no-wrap -t latex > $(OUTPUT)/main.tex
-	cp assets/template.tex $(OUTPUT)/$(name).tex
 	
 	# must use -o with docx output format, since its binary
 	pandoc $(OUTPUT)/post.json -s -t docx -o $(OUTPUT)/$(name).docx
@@ -53,6 +57,8 @@ convert:
 	
 	# convert latex to PDF
 	echo "Created $(OUTPUT)/$(name).tex, compiling into $(name).pdf"
+	# rubber will set output PDF filename based on latex input filename
+	mv $(OUTPUT)/template.tex $(OUTPUT)/$(name).tex
 	( cd $(OUTPUT); rubber --pdf $(name))
 
 diff:
@@ -79,7 +85,7 @@ docker_api_download:
 	$(docker_run_cmd) make api_download doc_id=$(doc_id) input_file=$(input_file)
 
 docker_convert:
-	$(docker_run_cmd) make convert OUTPUT=$(OUTPUT) name=$(name) input_file=$(input_file)
+	$(docker_run_cmd) make convert OUTPUT=$(OUTPUT) name=$(name) input_file=$(input_file) theme=$(theme)
 
 docker_diff:
 	docker run -t -i -v `pwd`:/var/gdocs-export -p 12736:12736 dergachev/gdocs-export make diff OUTPUT=$(OUTPUT) name=$(name) input_file=$(input_file) before=$(before)
