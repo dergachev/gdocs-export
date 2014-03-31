@@ -88,7 +88,7 @@ access_token: ya29.1.klsfj3kj3kj23k4jkkjsfkfjksdjfksdjfkjjiuiquiuwiue-324k234kj3
 refresh_token: 1/EJKERKJERKJ3jkkj34998889i9jkAAAAAAjjjjjjjzQ
 ```
 
-The *client_id* and *client_secret * properties are your application's API
+The *client_id* and *client_secret* properties are your application's API
 credentials, while the *access_token* and *refresh_token* are proof that your
 application has been authorized access to a given account's data. Be sure to
 keep this file private!
