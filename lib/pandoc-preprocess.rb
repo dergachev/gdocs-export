@@ -51,6 +51,19 @@ end
   end
 end
 
+# fix underline tags; in the source:
+#  .c13{text-decoration: underline}
+#  <span class="c13">Underline Text</span>
+#  Because pandoc doesn't support <u>, we make it into h1.underline
+#  and rely on custom filtering to convert to LaTeX properly.
+@source.scan(/\.(c\d+)\{text-decoration:underline\}/).each do |cssClass|
+  @doc.css("span.#{cssClass[0]}").each do |x|
+    # x.replace("<h1 class='underline'>#{x.content}</h1>")
+    # x.replace("<s>#{x.content}</s>")
+    x.replace("<span class='underline'>#{x.content}</s>")
+  end
+end
+
 # sometimes images are placed inside a heading tag, which crashes latex
 @doc.css('h1,h2,h3,h4,h5,h6').>('img').each do |x|
   x.parent.replace(x)

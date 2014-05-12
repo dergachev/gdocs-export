@@ -44,7 +44,7 @@ convert:
 	cp $(input_file) $(OUTPUT)/in.html
 	
 	bundle exec ruby -C$(OUTPUT) ../../lib/pandoc-preprocess.rb in.html > $(OUTPUT)/preprocessed.html
-	pandoc $(OUTPUT)/preprocessed.html -t json > $(OUTPUT)/pre.json
+	pandoc --parse-raw $(OUTPUT)/preprocessed.html -t json > $(OUTPUT)/pre.json
 	cat $(OUTPUT)/pre.json | ./lib/pandoc-filter.py > $(OUTPUT)/post.json
 	
 	# use pandoc to create metadata.tex, main.tex (these are included by ew-template.tex)
