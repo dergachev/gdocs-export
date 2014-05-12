@@ -64,7 +64,7 @@ account, you'll need to grant it the appropriate permissions.
 
 
 ```bash
-make docker_api_auth client_id=$CLIENT_ID client_secret=$CLIENT_SECRET
+make docker_api_auth CLIENT_ID=$CLIENT_ID CLIENT_SECRET=$CLIENT_SECRET
 ```
 
 That command command will prompt you to visit a URL that looks like this:

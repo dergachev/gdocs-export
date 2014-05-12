@@ -24,7 +24,7 @@ install_auth_file:
 
 api_auth:
 	bundle exec ruby bin/authorize.rb \
-		$(client_id) $(client_secret) \
+		$(CLIENT_ID) $(CLIENT_SECRET) \
 		https://www.googleapis.com/auth/drive.readonly \
 		> $(auth_file)
 
@@ -78,8 +78,11 @@ build_docker:
 docker_debug:
 	$(docker_run_cmd) /bin/bash
 
+latest:
+	docker run -t -i `docker images -q | head -n 1` /bin/bash
+
 docker_api_auth:
-	$(docker_run_cmd) make api_auth client_id=$(client_id) client_secret=$(client_secret)
+	$(docker_run_cmd) make api_auth CLIENT_ID=$(CLIENT_ID) CLIENT_SECRET=$(CLIENT_SECRET)
 
 docker_api_download:
 	$(docker_run_cmd) make api_download doc_id=$(doc_id) input_file=$(input_file)
