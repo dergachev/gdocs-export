@@ -1,4 +1,4 @@
-FROM  ubuntu:saucy
+FROM  ubuntu:trusty
 MAINTAINER Alex Dergachev <alex@evolvingweb.ca>
 
 # check if the docker host is running squid-deb-proxy, and use it
@@ -16,7 +16,7 @@ RUN apt-get -y install python-pip
 RUN pip install pandocfilters
 
 # latex tools
-RUN apt-get update -y && apt-get install -y texlive-latex-base texlive-xetex latex-xcolor texlive-math-extra texlive-latex-extra texlive-fonts-extra biblatex rubber latexdiff
+RUN apt-get update -y && apt-get install -y texlive-latex-base texlive-xetex latex-xcolor texlive-math-extra texlive-latex-extra texlive-fonts-extra rubber latexdiff
 
 # greatly speeds up nokogiri install
 ENV NOKOGIRI_USE_SYSTEM_LIBRARIES 1
@@ -32,11 +32,7 @@ ADD Gemfile.lock /tmp/
 RUN cd /tmp; bundle install
 
 # install pandoc 1.12 by from manually downloaded trusty deb packages (saucy only has 1.11, which is too old)
-RUN apt-get install -y liblua5.1-0 libyaml-0-2
-ADD docker/ /tmp/docker-trusty-debs/
-RUN dpkg -i /tmp/docker-trusty-debs/libicu52_52.1-3_amd64.deb
-RUN dpkg -i /tmp/docker-trusty-debs/pandoc-data_1.12.2.1-1build2_all.deb
-RUN dpkg -i /tmp/docker-trusty-debs/pandoc_1.12.2.1-1build2_amd64.deb
+RUN apt-get install -y pandoc
 
 EXPOSE 12736
 WORKDIR /var/gdocs-export/
