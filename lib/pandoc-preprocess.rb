@@ -24,12 +24,12 @@ end
 
 # support Google Docs title format, this prepares it for extract_metadata
 @doc.css("p.title").each do |x|
-  x.replace("<h1 class='ew-pandoc-title'>#{x.content}</h1>")
+  x.replace("<h1 class='ew-pandoc-title'>#{x.inner_html}</h1>")
 end
 
 # support Google Docs subtitle format; this prepares it for extract_metada
 @doc.css("p.subtitle").each do |x|
-  x.replace("<h1 class='ew-pandoc-subtitle'>#{x.content}</h1>")
+  x.replace("<h1 class='ew-pandoc-subtitle'>#{x.inner_html}</h1>")
 end
 
 # fix bold tags; in the source:
@@ -38,7 +38,7 @@ end
 bold_classes = @source.scan(/\.(c\d+)\{font-weight:bold\}/)
 bold_classes.each do |cssClass|
   @doc.css("span.#{cssClass[0]}").each do |x|
-    x.replace("<strong>#{x.content}</strong>")
+    x.replace("<strong>#{x.inner_html}</strong>")
   end
 end
 
@@ -47,7 +47,7 @@ end
 #  <span class="c16">Italic Text</span>
 @source.scan(/\.(c\d+)\{font-style:italic\}/).each do |cssClass|
   @doc.css("span.#{cssClass[0]}").each do |x|
-    x.replace("<em>#{x.content}</em>")
+    x.replace("<em>#{x.inner_html}</em>")
   end
 end
 
@@ -58,8 +58,6 @@ end
 #  and rely on custom filtering to convert to LaTeX properly.
 @source.scan(/\.(c\d+)\{text-decoration:underline\}/).each do |cssClass|
   @doc.css("span.#{cssClass[0]}").each do |x|
-    # x.replace("<h1 class='underline'>#{x.content}</h1>")
-    # x.replace("<s>#{x.content}</s>")
     x.replace("<span class='underline'>#{x.content}</s>")
   end
 end
