@@ -69,6 +69,18 @@ end
   x.parent.replace(x)
 end
 
+@doc.css('div').each do |x|
+  # header: first div in body
+  if (!x.previous_sibling && !x.previous_element)
+    x.replace("<h1 class='ew-pandoc-header'>#{x.inner_text}</h1>")
+  end
+
+  # footer: last div in body
+  if (!x.next_sibling && !x.next_element)
+    x.replace("<h1 class='ew-pandoc-footer'>#{x.inner_text}</h1>")
+  end
+end
+
 
 # remove empty nodes (google docs has lots of them, especially with pagebreaks)
 # must come before pagebreak processing

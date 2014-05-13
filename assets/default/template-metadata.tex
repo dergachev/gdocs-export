@@ -2,5 +2,12 @@
 \newcommand{\mysubtitle}{$subtitle$}
 \newcommand{\mybody}{$body$}
 
+$if(header)$
+\newcommand{\myheader}{$header$}
+$endif$
+
+$if(footer)$
+\newcommand{\myfooter}{$footer$}
+$endif$
 
 % TODO: support table of key-value metadata in google doc

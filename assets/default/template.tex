@@ -1,62 +1,66 @@
 % Docs in  http://www.tex.ac.uk/ctan/macros/latex/contrib/memoir/memman.pdf
 
-\input{metadata.tex}
-
 \documentclass[letterpaper,oldfontcommands,11pt,extrafontsizes,onecolumn,oneside,openboth,final,titlepage]{memoir}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
 \usepackage{amssymb,amsmath}
 \usepackage{ifxetex,ifluatex}
 \usepackage{fixltx2e} % provides \textsubscript
-
-% reduce page margins to a reasonable size
-\setlrmarginsandblock{2.5cm}{2.5cm}{*}
-\setulmarginsandblock{2.5cm}{2.5cm}{*}
-\checkandfixthelayout
-
-
+\usepackage[dvipsnames]{xcolor}  % Allows the definition of hex colors
 % use microtype if available
 \IfFileExists{microtype.sty}{\usepackage{microtype}}{}
 % use upquote if available, for straight quotes in verbatim environments
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
-
 \usepackage[utf8]{inputenc}
 \usepackage{eurosym}
-
-% http://tex.stackexchange.com/questions/37868/fancyhdr-and-memoir
-\let\footruleskip\undefined
-
-\usepackage{fancyhdr}
-\renewcommand{\headrulewidth}{0pt}
-
-% Chapter 2. Project Description ==> 2. Project Description
-\renewcommand{\chaptermark}[1]{\markboth{\thechapter.\ #1}{}}
-
-\fancypagestyle{plain}{  % used for pages that start new chapters
-  \lhead{}
-  \chead{}
-  \rhead{}
-  \cfoot{}
-  \rfoot{\thepage/\thelastpage}
-}
-
-\fancypagestyle{gdocs}{
-  \lhead{}
-  \chead{}
-  \rhead{\itshape{\nouppercase{\leftmark}}}
-  \cfoot{}
-  \rfoot{\thepage/\thelastpage}
-}
-
-\pagestyle{gdocs}
-
-\chapterstyle{komalike} % also consider article, tandh
-
-
 % used for printing google docs templates
 \usepackage{longtable}
 % used for printing google docs images
 \usepackage{graphicx}
+% to support underlining, see http://tex.stackexchange.com/questions/13377/how-can-i-underline-a-single-word-with-latex
+\usepackage[normalem]{ulem}
+% used for google docs links
+\usepackage[unicode=true]{hyperref}
+
+\input{metadata.tex}
+
+\hypersetup{breaklinks=true,
+            bookmarks=true,
+            pdfauthor=, %TODO: fix the author
+            pdftitle=\mytitle,
+            colorlinks=true,
+            urlcolor=blue,
+            linkcolor=magenta,
+            pdfborder={0 0 0}}
+
+% reduce page margins to a reasonable size
+\setlrmarginsandblock{2.5cm}{2.5cm}{*}
+\setulmarginsandblock{2.5cm}{2.5cm}{*}
+\setlength{\footskip}{1.2cm}
+\checkandfixthelayout
+
+% customize header and footer
+\nouppercaseheads
+\makepagestyle{mystyle}
+\pagestyle{mystyle}
+\aliaspagestyle{chapter}{mystyle}
+
+\ifdefined\myheader
+  \makeheadrule{mystyle}{\textwidth}{0.5pt}
+  \makeoddhead{mystyle}{}{}{\color{Gray}\itshape\myheader}
+\fi
+
+\ifdefined\myfooter
+  \makeoddfoot{mystyle}{\myfooter}{}{\thepage/\thelastpage}
+\else
+  \makeoddfoot{mystyle}{}{}{\thepage/\thelastpage}
+\fi
+\makefootrule{mystyle}{\textwidth}{0.5pt}{0ex}
+
+\makeheadfootruleprefix{mystyle}{\color{Gray}}{\color{Gray}}
+
+\chapterstyle{komalike} % also consider article
+
 % We will generate all images so they have a width \maxwidth. This means
 % that they will get their normal width if they fit onto the page, but
 % are scaled down if they would overflow the margins.
@@ -67,21 +71,7 @@
 \let\Oldincludegraphics\includegraphics
 \renewcommand{\includegraphics}[1]{\Oldincludegraphics[width=\maxwidth]{#1}}
 
-% used for google docs links
-\usepackage[unicode=true]{hyperref}
-\hypersetup{breaklinks=true,
-            bookmarks=true,
-            pdfauthor=, %TODO: fix the author
-            pdftitle=\mytitle,
-            colorlinks=true,
-            urlcolor=blue,
-            linkcolor=magenta,
-            pdfborder={0 0 0}}
-
-% to support underlining, see http://tex.stackexchange.com/questions/13377/how-can-i-underline-a-single-word-with-latex
-\usepackage[normalem]{ulem}
-
-% Uncommnet to make embedded links print out HREF in footnotes, good for printing
+% Uncomment to make embedded links print out HREF in footnotes, good for printing
 % \renewcommand{\href}[2]{#2\footnote{\url{#1}}}
 
 \setlength{\parindent}{0pt}

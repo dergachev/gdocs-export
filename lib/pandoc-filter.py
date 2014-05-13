@@ -10,14 +10,17 @@ emphasized text.
 
 from pandocfilters import walk, RawBlock, RawInline, Span, attributes, Str
 
-def isH1(key, value):
-  return key == 'Header' and value[0] == 1
-
 def isH1WithClass(key, value, className):
   return key == 'Header' and value[0] == 1 and className in value[1][1]
 
 def isSubTitle(key, value):
   return isH1WithClass(key, value, u'ew-pandoc-subtitle')
+
+def isHeader(key, value):
+  return isH1WithClass(key, value, u'ew-pandoc-header')
+
+def isFooter(key, value):
+  return isH1WithClass(key, value, u'ew-pandoc-footer')
 
 # hacky workaround for pandoc's not supporting <u>
 def isUnderline(key, value):
@@ -56,6 +59,12 @@ def extract_metadata(key, value, format, meta):
     return []
   if isSubTitle(key,value):
     meta["subtitle"] = { "c": value[2], "t": "MetaInlines" }
+    return []
+  if isHeader(key,value):
+    meta["header"] = { "c": value[2], "t": "MetaInlines" }
+    return []
+  if isFooter(key,value):
+    meta["footer"] = { "c": value[2], "t": "MetaInlines" }
     return []
 
 def fix_hr(key, value, format, meta):
