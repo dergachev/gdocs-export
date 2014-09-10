@@ -37,7 +37,7 @@ api_download: install_auth_file
 # PANDOC TARGETS
 #===============================================================================
 
-convert:
+latex:
 	mkdir -p $(OUTPUT)
 	cp assets/default/* $(OUTPUT)
 	test -z "$(theme)" || cp assets/$(theme)/* $(OUTPUT)
@@ -55,11 +55,14 @@ convert:
 	pandoc $(OUTPUT)/post.json -s -t docx -o $(OUTPUT)/$(name).docx
 	pandoc $(OUTPUT)/post.json -s -t rtf -o $(OUTPUT)/$(name).rtf
 	
+pdf:
 	# convert latex to PDF
 	echo "Created $(OUTPUT)/$(name).tex, compiling into $(name).pdf"
 	# rubber will set output PDF filename based on latex input filename
 	mv $(OUTPUT)/template.tex $(OUTPUT)/$(name).tex
 	( cd $(OUTPUT); rubber --pdf $(name))
+
+convert: latex pdf
 
 diff:
 	latexdiff --flatten build/$(before)/$(before).tex $(OUTPUT)/$(name).tex > $(OUTPUT)/diff.tex
