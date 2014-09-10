@@ -24,12 +24,12 @@ end
 
 # support Google Docs title format, this prepares it for extract_metadata
 @doc.css("p.title").each do |x|
-  x.replace("<h1 class='ew-pandoc-title'>#{x.inner_html}</h1>")
+  x.replace("<h1 class='ew-pandoc-title'>#{x.text}</h1>")
 end
 
 # support Google Docs subtitle format; this prepares it for extract_metada
 @doc.css("p.subtitle").each do |x|
-  x.replace("<h1 class='ew-pandoc-subtitle'>#{x.inner_html}</h1>")
+  x.replace("<h1 class='ew-pandoc-subtitle'>#{x.text}</h1>")
 end
 
 # fix bold tags; in the source:
@@ -38,7 +38,7 @@ end
 bold_classes = @source.scan(/\.(c\d+)\{font-weight:bold\}/)
 bold_classes.each do |cssClass|
   @doc.css("span.#{cssClass[0]}").each do |x|
-    x.replace("<strong>#{x.inner_html}</strong>")
+    x.name = "strong"
   end
 end
 
@@ -47,7 +47,7 @@ end
 #  <span class="c16">Italic Text</span>
 @source.scan(/\.(c\d+)\{font-style:italic\}/).each do |cssClass|
   @doc.css("span.#{cssClass[0]}").each do |x|
-    x.replace("<em>#{x.inner_html}</em>")
+    x.name = "em"
   end
 end
 
@@ -83,7 +83,7 @@ end
 # remove empty nodes (google docs has lots of them, especially with pagebreaks)
 # must come before pagebreak processing
 @doc.css('h1,h2,h3,h4,h5,h6').each do |x|
-  x.remove if x.content =~ /^\s*$/
+  x.remove if x.text =~ /^\s*$/
 end
 
 # Rewrite page breaks into something pandoc can parse
