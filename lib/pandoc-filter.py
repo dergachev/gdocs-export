@@ -89,6 +89,12 @@ def toJSONFilter():
   # first, process metadata (title and subtitle)
   result_meta = doc[0]['unMeta']
   doc = walk(doc, extract_metadata, format, result_meta)
+
+  # We need a title, use a default if unset
+  if 'title' not in result_meta:
+      title = {'c': 'Untitled', 't': 'Str'}
+      result_meta['title'] = { "c": [title], "t": "MetaInlines" }
+
   doc[0]['unMeta'] = result_meta
 
   # then, fix page breaks
