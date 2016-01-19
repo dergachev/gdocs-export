@@ -8,7 +8,7 @@ class PandocPreprocess
   def list_depth(list)
     klasses = list['class'] or return 0
     klass = klasses.split.each do |klass|
-      md = /^lst-kix_.*-(\d+)/.match(klass) or next
+      md = /^lst-kix_.*-(\d+)$/.match(klass) or next
       return md[1].to_i
     end
     return 0
@@ -29,10 +29,10 @@ class PandocPreprocess
       next unless lists
       lists.reverse_each do |list|
         # If the previous item is not a list, we're fine
-        prev = list.previous
-        next unless %w[ol ul].include?(prev.name)
+        prev = list.previous_element
+        next unless prev && prev.respond_to?(:name) &&
+          %w[ol ul].include?(prev.name)
 
-        # p [depth, list_depth(prev)]
         if list_depth(prev) == depth
           # Same depth, append our li's to theirs
           prev.add_child(list.children)
