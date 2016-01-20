@@ -9,3 +9,4 @@ gem "thor"
 gem "nokogiri"
 
 gem "rspec", ">=3.1"
+gem "rspec_junit_formatter", :group => :development
