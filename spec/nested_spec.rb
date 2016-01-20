@@ -144,7 +144,7 @@ EOF
 EOF
 
     # Target result with all attributes stripped, whitespace changes ok
-    target = <<EOF.gsub(/(>)?\s+</, '\1<')
+    target = <<EOF.gsub(/(>|^)?\s+(<|$)/, '\1\2')
       <p><span>p1</span></p><p></p>
       <p><span>p2</span></p><p></p>
       <ul>
@@ -178,7 +178,7 @@ EOF
     body.xpath('//*').each do |e|
       e.attributes.keys.each { |k| e.remove_attribute(k) }
     end
-    result = body.inner_html.gsub(/(>)?\s+</, '\1<')
+    result = body.inner_html.gsub(/(>|^)?\s+(<|$)/, '\1\2')
 
     expect(result).to eq target
   end
