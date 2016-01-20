@@ -69,7 +69,7 @@ pdf:
 convert: latex pdf
 
 diff:
-	latexdiff --flatten $(outdir)/$(before)/$(before).tex $(OUTPUT)/$(name).tex > $(OUTPUT)/diff.tex
+	/usr/bin/perl "`which latexdiff`" --flatten $(outdir)/$(before)/$(before).tex $(OUTPUT)/$(name).tex > $(OUTPUT)/diff.tex
 	(cd $(OUTPUT); rubber --pdf diff)
 
 
