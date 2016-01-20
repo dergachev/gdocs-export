@@ -61,7 +61,7 @@ pdf:
 	# convert latex to PDF
 	echo "Created $(OUTPUT)/$(name).tex, compiling into $(name).pdf"
 	# rubber will set output PDF filename based on latex input filename
-	mv $(OUTPUT)/template.tex $(OUTPUT)/$(name).tex
+	cp -f $(OUTPUT)/template.tex $(OUTPUT)/$(name).tex
 	( cd $(OUTPUT); rubber --pdf $(name))
 
 convert: latex pdf
