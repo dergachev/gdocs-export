@@ -12,7 +12,7 @@ input_file = input/$(name).html
 OUTPUT=$(outdir)/$(name)
 auth_file = google-api-authorization.yaml
 docker_workdir=/var/gdocs-export/
-docker_run_cmd = docker run -t -i -v `pwd`:$(workdir) -p 12736:12736 dergachev/gdocs-export
+docker_run_cmd = docker run -t -i -v `pwd`:$(docker_workdir) -p 12736:12736 dergachev/gdocs-export
 
 # directory containing customized header.tex, etc...
 theme = sample
