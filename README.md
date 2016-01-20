@@ -41,6 +41,15 @@ apt-get install -y squid-deb-proxy
 docker build -t dergachev/gdocs-export .
 ```
 
+To run the tests, do the following:
+
+```bash
+bundle config build.nokogiri --use-system-libraries
+bundle install 
+
+make test
+```
+
 Configuration
 -------------
 
