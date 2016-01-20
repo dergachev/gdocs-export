@@ -97,3 +97,10 @@ docker_convert:
 
 docker_diff:
 	docker run -t -i -v `pwd`:$(workdir) -p 12736:12736 dergachev/gdocs-export make diff OUTPUT=$(OUTPUT) name=$(name) input_file=$(input_file) before=$(before)
+
+#===============================================================================
+# MISC TARGETS
+#===============================================================================
+
+test:
+	bundle exec rspec

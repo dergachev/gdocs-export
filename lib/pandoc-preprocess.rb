@@ -4,6 +4,7 @@ require 'rubygems'
 require 'nokogiri'
 
 require 'open-uri'
+require_relative 'include/preprocess'
 
 @source = ARGF.read
 
@@ -92,7 +93,10 @@ end
   x.replace("<h1 class='ew-pandoc-pagebreak' />")
 end
 
-html = @doc.to_html
+preproc = PandocPreprocess.new(@doc)
+preproc.fixup_lists
+
+html = preproc.doc.to_html
 puts html
 
 # trying to fix encoding bug introduced by ruby1.9.3 or nokogori 1.6
