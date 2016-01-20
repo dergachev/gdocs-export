@@ -91,6 +91,7 @@ class PandocPreprocess
       # header: first div in body
       if (!x.previous_sibling && !x.previous_element)
         x.replace("<h1 class='ew-pandoc-header'>#{x.inner_text}</h1>")
+        next
       end
 
       # footer: last div in body
