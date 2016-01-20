@@ -1,17 +1,14 @@
 require 'preprocess'
 
-require 'rubygems'
-require 'nokogiri'
-
 RSpec.describe PandocPreprocess, '#fixup_lists' do
   it "does nothing if there are no lists" do
-    preproc = PandocPreprocess.new(Nokogiri::HTML('<div>foo</div>'))
+    preproc = PandocPreprocess.new('<div>foo</div>')
     preproc.fixup_lists
     expect(preproc.doc.at('body').inner_html).to eq '<div>foo</div>'
   end
 
   it "coalesces consecutive lists" do
-    preproc = PandocPreprocess.new(Nokogiri::HTML(<<EOF))
+    preproc = PandocPreprocess.new(<<EOF)
       <ul class="lst-kix_xxx-0">
         <li>foo</li>
       </ul>
@@ -26,7 +23,7 @@ EOF
   end
 
   it "moves sublists into place" do
-    preproc = PandocPreprocess.new(Nokogiri::HTML(<<EOF))
+    preproc = PandocPreprocess.new(<<EOF)
       <ul class="lst-kix_xxx-0">
         <li>foo</li>
       </ul>
@@ -43,7 +40,7 @@ EOF
   end
 
   it "coalesces consecutive lists" do
-    preproc = PandocPreprocess.new(Nokogiri::HTML(<<EOF))
+    preproc = PandocPreprocess.new(<<EOF)
       <ul class="lst-kix_xxx-0">
         <li>foo</li>
       </ul>
@@ -67,7 +64,7 @@ EOF
 
 
   it "handles realistic input" do
-    preproc = PandocPreprocess.new(Nokogiri::HTML(<<EOF))
+    preproc = PandocPreprocess.new(<<EOF)
     <p class="c0">
       <span>p1</span>
     </p>
