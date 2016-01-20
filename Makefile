@@ -45,7 +45,7 @@ latex:
 	test -z "$(theme)" || cp assets/$(theme)/* $(OUTPUT)
 	cp $(input_file) $(OUTPUT)/in.html
 
-	bundle exec ruby -C$(OUTPUT) `readlink -f lib/pandoc-preprocess.rb` in.html > $(OUTPUT)/preprocessed.html
+	bundle exec ruby -C$(OUTPUT) "$$PWD/lib/pandoc-preprocess.rb" in.html > $(OUTPUT)/preprocessed.html
 	pandoc --parse-raw $(OUTPUT)/preprocessed.html -t json > $(OUTPUT)/pre.json
 	cat $(OUTPUT)/pre.json | ./lib/pandoc-filter.py > $(OUTPUT)/post.json
 
