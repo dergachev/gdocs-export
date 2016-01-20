@@ -6,4 +6,3 @@ html = ARGF.read
 preproc = PandocPreprocess.new(html)
 preproc.process
 puts preproc.doc.to_html
-exit
