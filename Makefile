@@ -17,6 +17,8 @@ docker_run_cmd = docker run -t -i -v `pwd`:$(workdir) -p 12736:12736 dergachev/g
 # directory containing customized header.tex, etc...
 theme = sample
 
+all: convert
+
 #===============================================================================
 # GOOGLE_DRIVE_API TARGETS
 #===============================================================================
