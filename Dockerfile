@@ -19,9 +19,8 @@ RUN pip install pandocfilters
 RUN apt-get update -y && apt-get install -y texlive-latex-base texlive-xetex latex-xcolor texlive-math-extra texlive-latex-extra texlive-fonts-extra rubber latexdiff
 
 # greatly speeds up nokogiri install
-ENV NOKOGIRI_USE_SYSTEM_LIBRARIES 1
 # dependencies for nokogiri gem
-RUN apt-get install libxml2 libxml2-dev libxslt1-dev -y
+RUN apt-get install libxml2-dev libxslt1-dev pkg-config -y
 
 # install bundler
 RUN (gem list bundler | grep bundler) || gem install bundler
@@ -29,7 +28,7 @@ RUN (gem list bundler | grep bundler) || gem install bundler
 # install gems
 ADD Gemfile /tmp/
 ADD Gemfile.lock /tmp/
-RUN cd /tmp; bundle install
+RUN cd /tmp && bundle config build.nokogiri --use-system-libraries && bundle install
 
 # install pandoc 1.12 by from manually downloaded trusty deb packages (saucy only has 1.11, which is too old)
 RUN apt-get install -y pandoc

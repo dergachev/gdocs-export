@@ -1,17 +1,14 @@
 require 'preprocess'
 
-require 'rubygems'
-require 'nokogiri'
-
 RSpec.describe PandocPreprocess, '#fixup_lists' do
   it "does nothing if there are no lists" do
-    preproc = PandocPreprocess.new(Nokogiri::HTML('<div>foo</div>'))
+    preproc = PandocPreprocess.new('<div>foo</div>')
     preproc.fixup_lists
     expect(preproc.doc.at('body').inner_html).to eq '<div>foo</div>'
   end
 
   it "coalesces consecutive lists" do
-    preproc = PandocPreprocess.new(Nokogiri::HTML(<<EOF))
+    preproc = PandocPreprocess.new(<<EOF)
       <ul class="lst-kix_xxx-0">
         <li>foo</li>
       </ul>
@@ -26,7 +23,7 @@ EOF
   end
 
   it "moves sublists into place" do
-    preproc = PandocPreprocess.new(Nokogiri::HTML(<<EOF))
+    preproc = PandocPreprocess.new(<<EOF)
       <ul class="lst-kix_xxx-0">
         <li>foo</li>
       </ul>
@@ -43,7 +40,7 @@ EOF
   end
 
   it "coalesces consecutive lists" do
-    preproc = PandocPreprocess.new(Nokogiri::HTML(<<EOF))
+    preproc = PandocPreprocess.new(<<EOF)
       <ul class="lst-kix_xxx-0">
         <li>foo</li>
       </ul>
@@ -67,7 +64,7 @@ EOF
 
 
   it "handles realistic input" do
-    preproc = PandocPreprocess.new(Nokogiri::HTML(<<EOF))
+    preproc = PandocPreprocess.new(<<EOF)
     <p class="c0">
       <span>p1</span>
     </p>
@@ -144,7 +141,7 @@ EOF
 EOF
 
     # Target result with all attributes stripped, whitespace changes ok
-    target = <<EOF.gsub(/(>)?\s+</, '\1<')
+    target = <<EOF.gsub(/(>|^)?\s+(<|$)/, '\1\2')
       <p><span>p1</span></p><p></p>
       <p><span>p2</span></p><p></p>
       <ul>
@@ -178,8 +175,9 @@ EOF
     body.xpath('//*').each do |e|
       e.attributes.keys.each { |k| e.remove_attribute(k) }
     end
-    result = body.inner_html.gsub(/(>)?\s+</, '\1<')
+    result = body.inner_html.gsub(/(>|^)?\s+(<|$)/, '\1\2')
 
     expect(result).to eq target
   end
 end
+

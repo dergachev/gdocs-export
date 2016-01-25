@@ -4,3 +4,8 @@ build/*
 stuy/
 input/*
 
+vendor
+.bundle/
+Gemfile.lock
+
+google-api-authorization.yaml

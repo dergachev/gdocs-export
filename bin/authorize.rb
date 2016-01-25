@@ -2,9 +2,8 @@
 
 OAUTH_SERVER_PORT = 12736
 
-require 'rubygems'
-require 'webrick'
 require 'signet/oauth_2/client'
+require 'webrick'
 require 'yaml'
 
 ARGV.unshift('--help') if ARGV.empty?
