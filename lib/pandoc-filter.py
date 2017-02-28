@@ -86,8 +86,13 @@ def toJSONFilter():
   else:
     format = ""
 
+  newfmt = 'pandoc-api-version' in doc
+
   # first, process metadata (title and subtitle)
-  result_meta = doc[0]['unMeta']
+  if newfmt:
+      result_meta = doc['meta']
+  else:
+      result_meta = doc[0]['unMeta']
   doc = walk(doc, extract_metadata, format, result_meta)
 
   # We need a title, use a default if unset
@@ -95,7 +100,10 @@ def toJSONFilter():
       title = {'c': 'Untitled', 't': 'Str'}
       result_meta['title'] = { "c": [title], "t": "MetaInlines" }
 
-  doc[0]['unMeta'] = result_meta
+  if newfmt:
+      doc['meta'] = result_meta
+  else:
+      doc[0]['unMeta'] = result_meta
 
   # then, fix page breaks
   doc = walk(doc, fix_pagebreaks, format, result_meta)
