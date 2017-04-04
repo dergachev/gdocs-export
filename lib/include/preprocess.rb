@@ -68,6 +68,7 @@ class PandocPreprocess
     # and rely on custom filtering to convert to LaTeX properly.
     styles = {
       'font-weight:bold' => 'strong',
+      'font-weight:700' => 'strong',
       'font-style:italic' => 'em',
       'text-decoration:underline' => { class: 'underline' },
     }
