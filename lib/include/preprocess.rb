@@ -75,7 +75,7 @@ class PandocPreprocess
     }
 
     styles.each do |style, repl|
-      @source.scan(/\.(c\d+)\{#{style}\}/).each do |cssClass,|
+      @source.scan(/\.(c\d+)\{([^}]+;)*#{style}[;}]/).each do |cssClass,|
         @doc.css("span.#{cssClass}").each do |x|
           if Hash === repl
             x.replace("<span class='#{repl[:class]}'>#{x.content}</span>")
