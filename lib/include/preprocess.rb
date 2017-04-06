@@ -164,8 +164,11 @@ class PandocPreprocess
   def validate
     @errors = []
     validate_colspan
-    @errors.each { |e| STDERR.puts e }
-    exit 1 unless @errors.empty?
+    unless @errors.empty?
+      STDERR.puts 'Validation errors, bailing'
+      @errors.each { |e| STDERR.puts e }
+      exit 1
+    end
   end
 
   # Detect colspan > 1
@@ -174,7 +177,7 @@ class PandocPreprocess
         select { |e| e.attr('colspan').to_i > 1 }.each do |e|
       found = true
       short = e.text[0, 30]
-      @errors << "Validation error: colspan > 1 for \"#{short}\""
+      @errors << "Colspan > 1 for \"#{short}\""
     end
   end
 end
