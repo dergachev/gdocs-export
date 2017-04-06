@@ -20,6 +20,7 @@ class PandocPreprocess
   end
 
   def process
+    validate
     fixup_image_paths
     fixup_image_parents
     fixup_titles
@@ -156,6 +157,24 @@ class PandocPreprocess
           prev.xpath('li').last.add_child(list)
         end
       end
+    end
+  end
+
+  # Detect problems before we try to convert this doc
+  def validate
+    @errors = []
+    validate_colspan
+    @errors.each { |e| STDERR.puts e }
+    exit 1 unless @errors.empty?
+  end
+
+  # Detect colspan > 1
+  def validate_colspan
+    @doc.css('*[colspan]').
+        select { |e| e.attr('colspan').to_i > 1 }.each do |e|
+      found = true
+      short = e.text[0, 30]
+      @errors << "Validation error: colspan > 1 for \"#{short}\""
     end
   end
 end
