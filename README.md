@@ -171,3 +171,13 @@ following steps were sufficient as of March 4, 2014.
     ![](https://dl.dropbox.com/u/29440342/screenshots/SNFDZSWW-2014.03.04-17-52-19.png)
 * Copy "Client ID" and "Client Secret", store them somewhere for future sourcing.
     ![](https://dl.dropbox.com/u/29440342/screenshots/GGJDQSIN-2014.03.04-17-57-34.png)
+
+Installing on Mac
+-----------------
+
+```
+sudo tlmgr latex-diff
+sudo tlmgr install latexmk
+```
+
+See http://mg.readthedocs.io/latexmk.html

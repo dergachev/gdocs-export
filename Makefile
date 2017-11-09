@@ -64,13 +64,13 @@ pdf:
 	echo "Created $(OUTPUT)/$(name).tex, compiling into $(name).pdf"
 	# rubber will set output PDF filename based on latex input filename
 	cp -f $(OUTPUT)/template.tex $(OUTPUT)/$(name).tex
-	( cd $(OUTPUT); rubber --pdf $(name))
+	( cd $(OUTPUT); latexmk -pdf $(name))
 
 convert: latex pdf
 
 diff:
 	/usr/bin/perl "`which latexdiff`" --flatten $(outdir)/$(before)/$(before).tex $(OUTPUT)/$(name).tex > $(OUTPUT)/diff.tex
-	(cd $(OUTPUT); rubber --pdf diff)
+	(cd $(OUTPUT); latexmk -pdf diff)
 
 
 #===============================================================================
