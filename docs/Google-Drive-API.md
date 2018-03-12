@@ -1,9 +1,10 @@
-#Registering with Google Developers Console
+# Registering with Google Developers Console
 
 The following shows how to get a register your app (or rather, your instance of gdocs-export) and get a Google API `client_id` and `client_secret` tokens.
 
 The Google Developers Console API console seems to be always changing. The following steps were sufficient as of March 4, 2014.
 
+---
 
 * **CREATE NEW PROJECT:**
 	1. Visit [https://console.developers.google.com/project](https://console.developers.google.com/project).
