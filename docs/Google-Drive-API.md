@@ -1,5 +1,5 @@
----
-* **CREATE NEW PROJECT:**  
+
+* **CREATE NEW PROJECT:**
 	1. Visit [https://console.developers.google.com/project](https://console.developers.google.com/project).
 	![](./images/1.0.png)
 	1. Create new project.
