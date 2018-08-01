@@ -6,6 +6,7 @@ class PandocPreprocess
   def initialize(html)
     @source = html
     @doc = Nokogiri::HTML(html)
+    doc.encoding = 'UTF-8'
     @downloads = {}
   end
 
