@@ -55,7 +55,7 @@ class PandocPreprocess
     # TODO: ensure neither title or subtitle occur more than once, or are empty
     %w[title subtitle].each do |type|
       doc.css("p.#{type}").each do |x|
-        x.replace("<h1 class='ew-pandoc-#{type}'>#{x.text}</h1>")
+        x.replace("<h1 class='ew-pandoc-#{type}'>#{x.inner_html}</h1>")
       end
     end
   end
