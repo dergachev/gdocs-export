@@ -31,7 +31,10 @@ ADD Gemfile.lock /tmp/
 RUN cd /tmp && bundle config build.nokogiri --use-system-libraries && bundle install
 
 # install pandoc 1.12 by from manually downloaded trusty deb packages (saucy only has 1.11, which is too old)
-RUN apt-get install -y pandoc
+#RUN apt-get install -y pandoc
+RUN mkdir -p /tmp/debs/ && cd /tmp/debs && \
+    wget https://github.com/jgm/pandoc/releases/download/2.2.3.2/pandoc-2.2.3.2-1-amd64.deb && \
+    dpkg -i *.deb
 
 EXPOSE 12736
 WORKDIR /var/gdocs-export/

@@ -48,12 +48,12 @@ latex:
 	cp $(input_file) $(OUTPUT)/in.html
 
 	bundle exec ruby -C$(OUTPUT) "$$PWD/lib/pandoc-preprocess.rb" in.html > $(OUTPUT)/preprocessed.html
-	pandoc --parse-raw $(OUTPUT)/preprocessed.html -t json > $(OUTPUT)/pre.json
+	pandoc $(OUTPUT)/preprocessed.html -f html+raw_html -t json > $(OUTPUT)/pre.json
 	cat $(OUTPUT)/pre.json | ./lib/pandoc-filter.py > $(OUTPUT)/post.json
 
 	# use pandoc to create metadata.tex, main.tex (these are included by ew-template.tex)
-	pandoc $(OUTPUT)/post.json --no-wrap -t latex --template $(OUTPUT)/template-metadata.tex > $(OUTPUT)/metadata.tex
-	pandoc $(OUTPUT)/post.json --chapters --no-wrap -t latex > $(OUTPUT)/main.tex
+	pandoc $(OUTPUT)/post.json --wrap=none -t latex --template $(OUTPUT)/template-metadata.tex > $(OUTPUT)/metadata.tex
+	pandoc $(OUTPUT)/post.json --top-level-division=chapter --wrap=none -t latex > $(OUTPUT)/main.tex
 
 	# must use -o with docx output format, since its binary
 	pandoc $(OUTPUT)/post.json -s -t docx -o $(OUTPUT)/$(name).docx
@@ -64,13 +64,13 @@ pdf:
 	echo "Created $(OUTPUT)/$(name).tex, compiling into $(name).pdf"
 	# rubber will set output PDF filename based on latex input filename
 	cp -f $(OUTPUT)/template.tex $(OUTPUT)/$(name).tex
-	( cd $(OUTPUT); latexmk -pdf $(name))
+	( cd $(OUTPUT); rubber --pdf $(name))
 
 convert: latex pdf
 
 diff:
 	/usr/bin/perl "`which latexdiff`" --flatten $(outdir)/$(before)/$(before).tex $(OUTPUT)/$(name).tex > $(OUTPUT)/diff.tex
-	(cd $(OUTPUT); latexmk -pdf diff)
+	(cd $(OUTPUT); rubber --pdf diff)
 
 
 #===============================================================================
