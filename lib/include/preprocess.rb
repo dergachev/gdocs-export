@@ -1,13 +1,19 @@
 require 'nokogiri'
 require 'open-uri'
+require 'css_parser'
 
 class PandocPreprocess
   attr_reader :doc, :downloads
   def initialize(html)
     @source = html
     @doc = Nokogiri::HTML(html)
-    doc.encoding = 'UTF-8'
+    @doc.encoding = 'UTF-8'
+    @style_sheet = @doc.at_css("style").inner_text
     @downloads = {}
+
+    $style_sheet = @doc.at_css("style").inner_text
+    $parsed_style_sheet = CssParser::Parser.new
+    $parsed_style_sheet.load_string!(@style_sheet)
   end
 
   def download_resources
@@ -30,6 +36,8 @@ class PandocPreprocess
     fixup_empty_headers
     fixup_page_breaks
     fixup_lists
+    fixup_image_attributes
+    add_colgroup_to_tables
   end
 
   # Replace remote with local images
@@ -180,5 +188,104 @@ class PandocPreprocess
       short = e.text[0, 30]
       @errors << "Colspan > 1 for \"#{short}\""
     end
+  end
+  # Add width and height attributes to images.
+  def fixup_image_attributes
+    doc.css("img").each do |img|
+      style = img.attr('style')
+      %w[height width].each do |att|
+        val = style.match(/#{att}\s*:\s*([\d.]+)px/)[1]
+        img.set_attribute(att, val)
+      end
+    end
+  end
+  # Adds a colgroup that includes col tags with a relative width attribute, to all tables. Necessary in order to be parsed by Pandoc.
+  def add_colgroup_to_tables
+    @doc.css("table").map {|t| GdocTable.new(t)}.each &:prepend_colgroup
+  end
+end
+
+# Class to simplify dealing with HTML tables
+class HtmlTable
+  attr_accessor :table, :index, :size
+  def initialize(html_table)
+    @table = html_table
+    table_cells_index
+  end
+  def table_cells_index
+    result = Hash.new
+    i = 0
+    width = 0
+    @table.search("tr").each do |tr|
+      j = 0
+      tr.search("td").each do |td|
+        result[[i, j]] = td
+        j += 1
+      end
+      width = [width, j].max
+      i += 1
+    end
+    height = i
+    @size = [height, width]
+    @index = result
+    result
+  end
+  def css_classes_index
+    @css_classes_index ||= @index.map { |k, v| [k, v.attributes["class"].value] }.to_h
+  end
+  def css_classes
+    @css_classes ||= css_classes_index.map { |_, v| v }.uniq
+  end
+  def self.h_to_a(h)
+    out = []
+    h.each do |k, v|
+      i = k[0]
+      j = k[1]
+      out[i] ||= []
+      out[i][j] = v
+    end
+    out
+  end
+end
+
+# More specialized HTML tables class to deal with how Google-Docs formats tables
+class GdocTable < HtmlTable
+  attr_reader :parsed_style_sheet
+  def initialize(html_table)
+    super
+    @parsed_style_sheet = $parsed_style_sheet
+  end
+  def width_by_class
+    @width_by_class ||= css_classes.map do |c|
+      width_regex = /width:\s*([\d.]{2,})(px|pt)/
+      rule_set = parsed_style_sheet.find_by_selector(".#{c}").first
+      width = rule_set.match(width_regex)[1] || 0
+      [c, width]
+    end.to_h
+  end
+  def width_by_cell
+    @width_by_cell ||= self.css_classes_index.map do |k, v|
+      [k, width_by_class[v]]
+    end.to_h
+  end
+  def width_by_column
+    @width_by_column ||= HtmlTable::h_to_a(width_by_cell).transpose.map { |col| col.map{|x| x.to_f}.max }
+  end
+  def relative_width_by_column
+    total = width_by_column.sum
+    @relative_width_by_column ||= width_by_column.map {|x| x/total}
+  end
+  def colgroup_statement
+    out = "<colgroup>"
+    relative_width_by_column.each do |w|
+      out += "<col width=\"#{sprintf('%.2f', w*100)}%\" />"
+    end
+    out += "</colgroup>"
+  end
+  def prepend(str)
+    @table.inner_html = str + @table.inner_html
+  end
+  def prepend_colgroup
+    prepend(self.colgroup_statement)
   end
 end

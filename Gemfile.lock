@@ -7,6 +7,8 @@ GEM
       extlib (>= 0.9.15)
       multi_json (>= 1.0.0)
     builder (3.2.2)
+    css_parser (1.6.0)
+      addressable
     diff-lcs (1.2.5)
     extlib (0.9.16)
     faraday (0.8.11)
@@ -25,11 +27,13 @@ GEM
       multi_json (>= 1.5)
     launchy (2.4.3)
       addressable (~> 2.3)
-    mini_portile2 (2.0.0)
+    mini_portile2 (2.3.0)
     multi_json (1.11.2)
     multipart-post (1.2.0)
-    nokogiri (1.6.7.1)
-      mini_portile2 (~> 2.0.0.rc2)
+    nokogiri (1.8.4)
+      mini_portile2 (~> 2.3.0)
+    nokogiri (1.8.4-x64-mingw32)
+      mini_portile2 (~> 2.3.0)
     rspec (3.4.0)
       rspec-core (~> 3.4.0)
       rspec-expectations (~> 3.4.0)
@@ -56,8 +60,10 @@ GEM
 
 PLATFORMS
   ruby
+  x64-mingw32
 
 DEPENDENCIES
+  css_parser (~> 1.6)
   google-api-client (= 0.6.4)
   jwt (~> 0.1.4)
   nokogiri
@@ -66,4 +72,4 @@ DEPENDENCIES
   thor
 
 BUNDLED WITH
-   1.15.4
+   1.16.3
