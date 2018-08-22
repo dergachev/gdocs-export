@@ -11,3 +11,5 @@ gem "nokogiri"
 
 gem "rspec", ">=3.1"
 gem "rspec_junit_formatter", :group => :development
+
+gem "css_parser", "~> 1.6"

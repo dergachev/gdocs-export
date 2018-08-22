@@ -69,7 +69,8 @@
 \else\Gin@nat@width\fi}
 \makeatother
 \let\Oldincludegraphics\includegraphics
-\renewcommand{\includegraphics}[1]{\Oldincludegraphics[width=\maxwidth]{#1}}
+% The line below breaks the way that pandoc converts image metadata in unexpected ways.
+%\renewcommand{\includegraphics}[1]{\Oldincludegraphics[width=\maxwidth]{#1}}
 
 % Uncomment to make embedded links print out HREF in footnotes, good for printing
 % \renewcommand{\href}[2]{#2\footnote{\url{#1}}}
