@@ -1,0 +1,15 @@
+version: '3.1'
+
+services:
+  gdocs:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ${DOCKER_IMAGE}_container
+    ports:
+      - "${PORT_PREFIX}36:${PORT_PREFIX}36"
+      - "${PORT_PREFIX}80:80"
+    volumes:
+      - "${APP_HOST_DIR}:${APP_DOCKER_DIR}"
+    tty: true
+    restart: always

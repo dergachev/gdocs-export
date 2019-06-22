@@ -1,76 +1,84 @@
+include .env
 #===============================================================================
 # DEFAULT MAKE VARIABLES
 #===============================================================================
+AUTH_FILE=google-api-authorization.yaml
 
-# defaults to "Test doc for gd-pandoc"
-doc = https://docs.google.com/a/evolvingweb.ca/document/d/1dwYaiiy4P0KA7PvNwAP2fsPAf6qMMNzwaq8W66mwyds/edit#heading=h.4lk08p1hx3w
+#DATE=$(eval DATE_DIR=$(shell date +%Y-%m))
+DATE=$(shell date +%Y-%m)
 
-outdir=build
-doc_id = $(shell echo $(doc) | sed -e 's@^https.*document/d/@@' -e 's@/edit.*@@')
-name = default
-input_file = input/$(name).html
-OUTPUT=$(outdir)/$(name)
-auth_file = google-api-authorization.yaml
-docker_workdir=/var/gdocs-export/
-docker_run_cmd = docker run -t -i -v `pwd`:$(docker_workdir) -p 12736:12736 dergachev/gdocs-export
+FILE_NAME=default
+THEME=sample
 
-# directory containing customized header.tex, etc...
-theme = sample
+INPUT_FILE_DIR=input/$(DATE)
+INPUT_FILE=$(INPUT_FILE_DIR)/$(FILE_NAME).html
 
-all: convert
+OUTPUT_DIR=build/$(DATE)
+OUTPUT_FILE_DIR=$(OUTPUT_DIR)/$(FILE_NAME)
+
+
 
 #===============================================================================
 # GOOGLE_DRIVE_API TARGETS
+# run on Docker container
 #===============================================================================
 
 install_auth_file:
-	cp $(workdir)$(auth_file) ~/.google-api.yaml
+	@cp ${APP_DOCKER_DIR}/${AUTH_FILE} ${APACHE_USER_HOME_DIR}/.google-api.yml
 
+# Download google-api-authorization.yaml
+# usage:
+# make api_auth
 api_auth:
 	bundle exec ruby bin/authorize.rb \
-		$(CLIENT_ID) $(CLIENT_SECRET) \
+		${GOOGLE_CLIENT_ID} ${GOOGLE_CLIENT_SECRET} \
 		https://www.googleapis.com/auth/drive.readonly \
-		> $(auth_file)
+		> $(AUTH_FILE)
 
-api_download: install_auth_file
+# Download HTML version of the Google document and store it in INPUT_FILE_DIR
+# usage:
+# make api_download DOC_ID=xxxxx FILE_NAME=xxx
+api_download: #install_auth_file
+	if [ ! -d input/$(DATE) ]; then mkdir input/$(DATE); fi;
+	# get DOC_ID from input
 	bundle exec google-api execute \
-	  -u "https://docs.google.com/feeds/download/documents/export/Export?id=$(doc_id)&exportFormat=html" \
-	  > $(input_file)
+	  -u "https://docs.google.com/feeds/download/documents/export/Export?id=$(DOC_ID)&exportFormat=html" \
+	  > $(INPUT_FILE_DIR)/$(FILE_NAME).html
 
 #===============================================================================
 # PANDOC TARGETS
+# run on Docker container
 #===============================================================================
-
 latex:
-	mkdir -p $(OUTPUT)
-	cp assets/default/* $(OUTPUT)
-	test -z "$(theme)" || cp assets/$(theme)/* $(OUTPUT)
-	cp $(input_file) $(OUTPUT)/in.html
+	mkdir -p $(OUTPUT_FILE_DIR)
+	cp assets/default/* $(OUTPUT_FILE_DIR)
+	test -z "$(THEME)" || cp assets/$(THEME)/* $(OUTPUT_FILE_DIR)
+	cp $(INPUT_FILE) $(OUTPUT_FILE_DIR)/in.html
 
-	bundle exec ruby -C$(OUTPUT) "$$PWD/lib/pandoc-preprocess.rb" in.html > $(OUTPUT)/preprocessed.html
-	pandoc --parse-raw $(OUTPUT)/preprocessed.html -t json > $(OUTPUT)/pre.json
-	cat $(OUTPUT)/pre.json | ./lib/pandoc-filter.py > $(OUTPUT)/post.json
+	bundle exec ruby -C$(OUTPUT_FILE_DIR) "$$PWD/lib/pandoc-preprocess.rb" in.html > $(OUTPUT_FILE_DIR)/preprocessed.html
+	pandoc --parse-raw $(OUTPUT_FILE_DIR)/preprocessed.html -t json > $(OUTPUT_FILE_DIR)/pre.json
+	cat $(OUTPUT_FILE_DIR)/pre.json | ./lib/pandoc-filter.py > $(OUTPUT_FILE_DIR)/post.json
 
 	# use pandoc to create metadata.tex, main.tex (these are included by ew-template.tex)
-	pandoc $(OUTPUT)/post.json --no-wrap -t latex --template $(OUTPUT)/template-metadata.tex > $(OUTPUT)/metadata.tex
-	pandoc $(OUTPUT)/post.json --chapters --no-wrap -t latex > $(OUTPUT)/main.tex
+	pandoc $(OUTPUT_FILE_DIR)/post.json --no-wrap -t latex --template $(OUTPUT_FILE_DIR)/template-metadata.tex > $(OUTPUT_FILE_DIR)/metadata.tex
+	pandoc $(OUTPUT_FILE_DIR)/post.json --chapters --no-wrap -t latex > $(OUTPUT_FILE_DIR)/main.tex
 
 	# must use -o with docx output format, since its binary
-	pandoc $(OUTPUT)/post.json -s -t docx -o $(OUTPUT)/$(name).docx
-	pandoc $(OUTPUT)/post.json -s -t rtf -o $(OUTPUT)/$(name).rtf
+	pandoc $(OUTPUT_FILE_DIR)/post.json -s -t docx -o $(OUTPUT_FILE_DIR)/$(FILE_NAME).docx
+	pandoc $(OUTPUT_FILE_DIR)/post.json -s -t rtf -o $(OUTPUT_FILE_DIR)/$(FILE_NAME).rtf
 
 pdf:
 	# convert latex to PDF
-	echo "Created $(OUTPUT)/$(name).tex, compiling into $(name).pdf"
+	echo "Created $(OUTPUT_FILE_DIR)/$(FILE_NAME).tex, compiling into $(FILE_NAME).pdf"
 	# rubber will set output PDF filename based on latex input filename
-	cp -f $(OUTPUT)/template.tex $(OUTPUT)/$(name).tex
-	( cd $(OUTPUT); latexmk -pdf $(name))
+	cp -f $(OUTPUT_FILE_DIR)/template.tex $(OUTPUT_FILE_DIR)/$(FILE_NAME).tex
+	( cd $(OUTPUT_FILE_DIR); rubber --pdf $(FILE_NAME))
 
 convert: latex pdf
 
-diff:
-	/usr/bin/perl "`which latexdiff`" --flatten $(outdir)/$(before)/$(before).tex $(OUTPUT)/$(name).tex > $(OUTPUT)/diff.tex
-	(cd $(OUTPUT); latexmk -pdf diff)
+# diff:
+# 	/usr/bin/perl "`which latexdiff`" --flatten $(outdir)/$(before)/$(before).tex $(OUTPUT)/$(name).tex > $(OUTPUT)/diff.tex
+# 	(cd $(OUTPUT); latexmk -pdf diff)
 
 
 #===============================================================================
@@ -78,27 +86,18 @@ diff:
 #===============================================================================
 
 build_docker:
-	@echo "Warning: building can take a while (~15m)."
-	dpkg -l squid-deb-proxy || sudo apt-get install -y squid-deb-proxy
-	docker build -t dergachev/gdocs-export .
+	docker-compose up -d --build
 
-docker_debug:
-	$(docker_run_cmd) /bin/bash
+access:
+	# Access docker container as gdocs user
+	docker exec -it --user ${APACHE_USER} ${DOCKER_CONTAINER} /bin/bash
 
-latest:
-	docker run -t -i `docker images -q | head -n 1` /bin/bash
+stop:
+	docker-compose stop
 
-docker_api_auth:
-	$(docker_run_cmd) make api_auth CLIENT_ID=$(CLIENT_ID) CLIENT_SECRET=$(CLIENT_SECRET)
-
-docker_api_download:
-	$(docker_run_cmd) make api_download doc_id=$(doc_id) input_file=$(input_file) workdir=$(docker_workdir)
-
-docker_convert:
-	$(docker_run_cmd) make convert OUTPUT=$(OUTPUT) name=$(name) input_file=$(input_file) theme=$(theme)
-
-docker_diff:
-	docker run -t -i -v `pwd`:$(docker_workdir) -p 12736:12736 dergachev/gdocs-export make diff OUTPUT=$(OUTPUT) name=$(name) input_file=$(input_file) before=$(before)
+restart:
+	docker-compose stop
+	docker-compose start
 
 #===============================================================================
 # MISC TARGETS
@@ -106,3 +105,14 @@ docker_diff:
 
 test:
 	bundle exec rspec
+
+#===============================================================================
+# TEST
+# Test build Alex's public document
+# https://docs.google.com/document/d/1dwYaiiy4P0KA7PvNwAP2fsPAf6qMMNzwaq8W66mwyds/edit
+#===============================================================================
+test_convert:
+	$(eval DOC_ID=1dwYaiiy4P0KA7PvNwAP2fsPAf6qMMNzwaq8W66mwyds)
+	$(eval FILE_NAME=sample2)
+	$(MAKE) api_download DOC_ID=$(DOC_ID) FILE_NAME=$(FILE_NAME)
+	$(MAKE) convert FILE_NAME=$(FILE_NAME) THEME=ew
