@@ -1,0 +1,14 @@
+{
+    "name": "robertng/gdocs",
+    "description": "Gdocs export PHP server",
+    "authors": [
+        {
+            "name": "Robert Ngo",
+            "email": "robert.ngo@evolvingweb.ca"
+        }
+    ],
+    "require": {
+        "google/apiclient": "^2.0",
+        "guzzlehttp/guzzle": "~6.0"
+    }
+}

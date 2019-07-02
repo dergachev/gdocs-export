@@ -15,40 +15,16 @@ Installation
 ------------
 
 See below for how to get google drive API *client_id* and *client_secret*.
-See the `Vagrantfile` for installation steps.
 See the `Makefile` for usage.
 
-Starts a VM with docker and squid-deb-proxy running, then builds the gdocs-export docker image:
+Run the docker container by 
 
-```bash
-vagrant up
-vagrant ssh
-cd /vagrant/
-
-# pulls the image from index.docker.io  (about ~2GB)
-docker pull dergachev/gdocs-export
+```
+make build_docker
 ```
 
-Alternatively, we can build the image from this repo, but this takes a while
-and installing squid-deb-proxy to cache 'apt-get install' downloads is highly
-recommended:
 
-```bash
-# optional, caches apt-get downloads in containers
-apt-get install -y squid-deb-proxy
 
-# takes 10-20 minutes
-docker build -t dergachev/gdocs-export .
-```
-
-To run the tests, do the following:
-
-```bash
-bundle config build.nokogiri --use-system-libraries
-bundle install 
-
-make test
-```
 
 Configuration
 -------------
@@ -181,3 +157,11 @@ sudo tlmgr install latexmk
 ```
 
 See http://mg.readthedocs.io/latexmk.html
+
+
+# ====================
+
+Authorization issue:
+/usr/lib/ruby/1.9.1/webrick/utils.rb:85:in `initialize': Address already in use - bi
+lsof -wni tcp:12736
+kill -9 PID
